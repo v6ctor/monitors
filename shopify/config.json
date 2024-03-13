@@ -1,0 +1,5 @@
+{
+    "sites" : ["https://www.myfitteds.com/", "https://www.myfitteds.com/", "https://www.myfitteds.com/"],
+    "webhooks": ["", "", ""],
+    "delay": [8000]
+}
