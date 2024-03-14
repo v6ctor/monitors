@@ -3,32 +3,45 @@ import threading
 
 from monitor.task import Task
 
-try:
-    with open("config.json") as data:
-        raw = json.load(data)
-        data.close()
+def load_proxies(filename):
+    proxies = []
+    try:
+        with open(filename) as file:
+            for line in file:
+                split_line = line.split(':')
+                formatted_line = f"https://{split_line[2]}:{line[3]}@{line[0]}:{line[1]}"
+                proxies.append(formatted_line.strip())
+    except Exception as e:
+        print(f"Error loading proxies: {e}")
+    return proxies
 
-    with open("proxies.txt") as data:
-        proxies = []
-        for line in data:
-            split_line = line.split(':')
-            formatted_line = 'https://' + split_line[2] + ':' + line[3] + '@' + line[0] + ':' + line[1]
-            proxies.append(formatted_line.replace('\n','')) 
-except Exception as e:
-    print(e)
-    exit()
+def load_config(filename):
+    try:
+        with open(filename) as file:
+            return json.load(file)
+    except Exception as e:
+        print(f"Error loading config: {e}")
+        return None
 
-if raw["sites"] == []:
-    print("No sites registered - check sites.json")
-    exit()
-
-def start(proxies, site, webhook, delay, task_id):
+def start_task(proxies, site, webhook, delay, task_id):
     task = Task(proxies, site, webhook, delay, task_id)
     task.monitor()
 
 def main():
-    for index in range(len(raw["sites"])):
-        thread = threading.Thread(target = start, args = (proxies, raw["sites"][index], raw["webhooks"][index], raw["delay"], index,))
+    config = load_config("config.json")
+    if not config or not config.get("sites"):
+        print("No sites registered or invalid config - check config.json")
+        return
+
+    proxies = load_proxies("proxies.txt")
+    if not proxies:
+        print("No proxies loaded or invalid proxies file - check proxies.txt")
+        return
+
+    delay = config["delay"]
+    
+    for task_id, (site, webhook) in enumerate(zip(config["sites"], config["webhooks"])):
+        thread = threading.Thread(target=start_task, args=(proxies, site, webhook, delay, task_id))
         thread.start()
 
 if __name__ == "__main__":
