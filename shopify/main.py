@@ -23,8 +23,8 @@ def load_config(filename):
         print(f"Error loading config: {e}")
         return None
 
-def start_task(proxies, site, webhook, delay, task_id):
-    task = Task(proxies, site, webhook, delay, task_id)
+def start_task(proxies, site, webhook, delay, task_id, restock_color, new_product_color):
+    task = Task(proxies, site, webhook, delay, task_id, restock_color, new_product_color)
     task.monitor()
 
 def main():
@@ -39,15 +39,12 @@ def main():
         return
 
     delay = config["delay"]
+    restock_color = config["restock_color"]
+    new_product_color = config["new_product_color"]
     
     for task_id, (site, webhook) in enumerate(zip(config["sites"], config["webhooks"])):
-        thread = threading.Thread(target=start_task, args=(proxies, site, webhook, delay, task_id))
+        thread = threading.Thread(target=start_task, args=(proxies, site, webhook, delay, task_id, restock_color, new_product_color))
         thread.start()
 
 if __name__ == "__main__":
     main()
-
-    
-
-
-
