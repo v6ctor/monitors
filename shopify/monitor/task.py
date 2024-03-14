@@ -32,8 +32,7 @@ class Task:
         self.proxy = choice(self.proxies)
 
     def scrape(self):
-        # products = get(self.site?limit=40.314, proxies = {"http": self.proxy, "https": self.proxy}).json()
-        response = get(self.site + "products.json?limit=40.314")
+        response = get(self.site + "products.json?limit=40.314", proxies = {"http": self.proxy, "https": self.proxy})
 
         if response.status_code != 200:
             print(f"Error {response.status_code} - trying again... ")
