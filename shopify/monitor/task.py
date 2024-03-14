@@ -10,7 +10,7 @@ class Task:
         self.proxy = choice(self.proxies)
         self.site = site
         self.webhook = webhook
-        self.delay = delay[0]
+        self.delay = delay
 
         # current scraped products 
         self.products = []
