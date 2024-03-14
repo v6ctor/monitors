@@ -5,12 +5,16 @@ from discord_webhook import DiscordWebhook, DiscordEmbed
 import datetime
 
 class Task:
-    def __init__(self, proxies, site, webhook, delay, task_id):
+    def __init__(self, proxies, site, webhook, delay, task_id, restock_color, new_product_color):
         self.proxies = proxies
         self.proxy = choice(self.proxies)
         self.site = site
         self.webhook = webhook
         self.delay = delay
+        self.restock_color = restock_color
+        self.new_product_color = new_product_color
+
+        self.task_id = task_id
 
         # current scraped products 
         self.products = []
@@ -24,19 +28,23 @@ class Task:
         self.found_product = None
         self.init = 1
 
-        self.task_id = task_id
-
     def rotate_proxies(self):
         self.proxy = choice(self.proxies)
 
     def scrape(self):
         # products = get(self.site?limit=40.314, proxies = {"http": self.proxy, "https": self.proxy}).json()
-        products = get(self.site + "products.json?limit=40.314").json()["products"]
+        response = get(self.site + "products.json?limit=40.314")
+
+        if response.status_code != 200:
+            print(f"Error {response.status_code} - trying again... ")
+
+        products = response.json()["products"]
 
         if products is None:
             self.rotate_proxies(self.proxies)
             sleep(self.delay)
             scrape()
+
         for product in products:
             variants = []
             for variant in product["variants"]:
@@ -73,20 +81,23 @@ class Task:
                         self.send_webhook(True)
 
     def send_webhook(self, is_restock):
-        webhook = DiscordWebhook(url=self.webhook)
+        webhook = DiscordWebhook(url=self.webhook, rate_limit_retry=True)
 
-        embed = DiscordEmbed(title=self.found_product[0], url=self.found_product[1])
+        if (is_restock):
+            color = self.restock_color
+            webhook_type = "Restock"
+        else:
+            color = self.new_product_color
+            webhook_type = "New Product"
+
+        embed = DiscordEmbed(title=self.found_product[0], url=self.found_product[1], color=color)
         embed.set_thumbnail(url=self.found_product[2])
         embed.set_footer(text="Shopify Monitor - @v6ctor")
-        embed.set_timestamp()
+        embed.set_timestamp(datetime.datetime.now())
 
         embed.add_embed_field(name="Price", value=self.found_product[3][0][3], inline=False)
 
-        if (is_restock):
-            embed.add_embed_field(name="Type", value="Restock", inline=False)
-        else:
-            embed.add_embed_field(name="Type", value="New Product", inline=False)
-
+        embed.add_embed_field(name="Type", value=webhook_type, inline=False)
         for index in range(len(self.found_product[3])):
             if (self.found_product[3][index][0]):
                 embed.add_embed_field(name=self.found_product[3][index][2], value="[ATC](%scart/%s:1)" % (self.site, self.found_product[3][index][1]))
@@ -102,5 +113,3 @@ class Task:
             print("scraped")
             self.init = 0
             sleep(self.delay)
-
-  
