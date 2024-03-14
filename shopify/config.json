@@ -1,5 +1,5 @@
 {
-    "sites" : ["https://www.myfitteds.com/", "https://www.myfitteds.com/", "https://www.myfitteds.com/"],
-    "webhooks": ["", "", ""],
-    "delay": [8000]
+    "sites" : ["https://www.myfitteds.com/"],
+    "webhooks": ["https://discord.com/api/webhooks/1217760804976197743/kctEGw48SyGe5aQuanT4kAwi061Frv4OFRQPkdjKREa79ejKrqmRmUtk65gVSRan9OP9"],
+    "delay": [8]
 }

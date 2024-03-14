@@ -1,1 +1,1 @@
-"replace:this:with:proxies"
+geo.iproyal.com:12321:fgei:v6ctor

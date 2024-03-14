@@ -20,15 +20,16 @@ except Exception as e:
 
 if raw["sites"] == []:
     print("No sites registered - check sites.json")
+    exit()
 
 def start(proxies, site, webhook, delay, task_id):
     task = Task(proxies, site, webhook, delay, task_id)
-    task.test()
+    task.monitor()
 
 def main():
     for index in range(len(raw["sites"])):
-        task = threading.Thread(target = start, args = (proxies, raw["sites"][index], raw["webhooks"][index], raw["delay"], index,))
-        task.start()
+        thread = threading.Thread(target = start, args = (proxies, raw["sites"][index], raw["webhooks"][index], raw["delay"], index,))
+        thread.start()
 
 if __name__ == "__main__":
     main()
