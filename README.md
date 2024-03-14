@@ -17,3 +17,4 @@ For educational purposes only. The maintainers do not endorse, support, or promo
 - [x] Support product restock alerts
 - [ ] Simplify config.json user readability
 - [ ] Improve error logging and handling
+- [ ] Node JS refactor with accompanying user dashboard
